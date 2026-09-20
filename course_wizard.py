@@ -73,6 +73,7 @@ def render():
 # STEP 0 -- upload + basic configuration
 # =====================================================================
 def _step0_config():
+    data = st.session_state.cw_data
     st.subheader("1. Material fuente y configuración")
 
     source_mode = st.radio("¿Cómo vas a dar el material fuente?", ["Subir archivo (PDF / Word / TXT)", "Pegar texto directamente"])
