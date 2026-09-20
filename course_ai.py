@@ -9,13 +9,15 @@ question is always shown for the person to confirm or correct before it is
 used for anything.
 """
 import json
+import time
 
 import groq_client as oc
 
-# Groq's hosted 70B model has a much larger, more reliable context than a
-# local 8B model -- but we still keep prompts reasonably sized so each
-# wizard step stays fast and cheap on the free tier.
-MAX_SOURCE_CHARS = 40_000
+# Groq's free tier for openai/gpt-oss-120b caps at 8,000 tokens/minute --
+# noticeably tighter than other models. Keeping the source-text portion of
+# every prompt small is what keeps the wizard inside that budget across the
+# many calls one course generates (one prompt per topic, per dynamic, etc.).
+MAX_SOURCE_CHARS = 6_000
 
 
 def _truncate(text):
@@ -201,6 +203,8 @@ def propose_exam(source_text, temario, n_questions, exam_label="inicial"):
     batch_size = 4
     all_questions = []
     for start in range(0, n_questions, batch_size):
+        if start > 0:
+            time.sleep(2)  # respeta el límite de tokens/minuto del nivel gratuito de Groq
         count = min(batch_size, n_questions - start)
         avoid = ""
         if all_questions:
