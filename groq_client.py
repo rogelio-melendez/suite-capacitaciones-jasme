@@ -15,7 +15,18 @@ import requests
 import streamlit as st
 
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
-MODEL_NAME = "llama-3.3-70b-versatile"
+# openai/gpt-oss-120b is Groq's current recommended flagship model (Sept 2026).
+# llama-3.3-70b-versatile, which this used until now, was decommissioned by
+# Groq on 2026-08-16. If Groq retires this one too in the future, override
+# it without touching code by adding GROQ_MODEL to Streamlit secrets.
+DEFAULT_MODEL = "openai/gpt-oss-120b"
+
+
+def _model_name():
+    try:
+        return st.secrets.get("GROQ_MODEL", DEFAULT_MODEL)
+    except Exception:
+        return DEFAULT_MODEL
 
 
 def is_available():
@@ -32,7 +43,7 @@ def _api_key():
 def _post_chat(prompt, max_tokens, temperature, retries=2):
     headers = {"Authorization": f"Bearer {_api_key()}", "Content-Type": "application/json"}
     payload = {
-        "model": MODEL_NAME,
+        "model": _model_name(),
         "messages": [{"role": "user", "content": prompt}],
         "temperature": temperature,
         "max_tokens": max_tokens,
@@ -44,13 +55,20 @@ def _post_chat(prompt, max_tokens, temperature, retries=2):
             if r.status_code == 429:
                 time.sleep(3 * (attempt + 1))  # free-tier rate limit -- brief backoff and retry
                 continue
+            if r.status_code in (400, 401, 403, 404):
+                # Client-side errors (bad key, bad/retired model name, etc.) will
+                # never succeed on retry -- fail immediately with Groq's own
+                # message instead of masking it behind 3 identical retries.
+                raise RuntimeError(f"Groq respondió {r.status_code}: {r.text[:500]}")
             r.raise_for_status()
             return r.json()["choices"][0]["message"]["content"]
+        except RuntimeError:
+            raise
         except requests.exceptions.RequestException as e:
             last_error = e
             time.sleep(1)
     raise RuntimeError(
-        f"No se pudo conectar con Groq (¿está bien configurada GROQ_API_KEY en Secrets?): {last_error}"
+        f"No se pudo conectar con Groq después de varios intentos: {last_error}"
     )
 
 
