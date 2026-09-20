@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
 """All the AI planning calls for the course generator wizard, running on
-Groq's free cloud API (see groq_client.py) -- no cost, no credit card,
-using a capable 70B model.
+Google's Gemini API (see gemini_client.py) -- free tier, no credit card.
 
-Design principle unchanged since this used Claude, then Ollama: the model
-PROPOSES, the person CONFIRMS. Every dynamic exercise and every exam
-question is always shown for the person to confirm or correct before it is
-used for anything.
+Design principle unchanged since this used Claude, then Ollama, then Groq:
+the model PROPOSES, the person CONFIRMS. Every dynamic exercise and every
+exam question is always shown for the person to confirm or correct before
+it is used for anything.
 """
 import json
 import time
 
-import groq_client as oc
+import gemini_client as oc
 
-# Groq's free tier for openai/gpt-oss-120b caps at 8,000 tokens/minute --
-# noticeably tighter than other models. Keeping the source-text portion of
-# every prompt small is what keeps the wizard inside that budget across the
-# many calls one course generates (one prompt per topic, per dynamic, etc.).
-MAX_SOURCE_CHARS = 6_000
+# Gemini's free tier has a much larger per-minute token budget than the
+# 8,000 TPM we ran into on Groq's gpt-oss-120b, so prompts can safely carry
+# more of the source document again.
+MAX_SOURCE_CHARS = 20_000
 
 
 def _truncate(text):
@@ -94,7 +92,7 @@ Devuelve ÚNICAMENTE un JSON con esta forma exacta (un entero por tema, en el
 mismo orden del temario, que sumen exactamente {total_content_slides}):
 {{"allocation": [3, 5, 2, ...]}}
 """
-    result = _call(prompt, max_tokens=500)
+    result = _call(prompt, max_tokens=1200)
     allocation = result["allocation"]
     # Defensive rebalancing in case the model's sum drifts from the budget.
     diff = total_content_slides - sum(allocation)
@@ -228,6 +226,6 @@ Devuelve ÚNICAMENTE un JSON con esta forma exacta:
    ...
 ]}}
 """
-        result = _call(prompt, max_tokens=1500)
+        result = _call(prompt, max_tokens=2000)
         all_questions.extend(result["preguntas"][:count])
     return all_questions
