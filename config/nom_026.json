@@ -1,0 +1,31 @@
+{
+  "nom_id": "NOM-026-STPS-2008",
+  "title": "NOM-026-STPS-2008",
+  "approve_operator": ">=",
+  "approve_threshold": 8,
+  "questions": [
+    "1. ¿Cuál es el objetivo principal de la NOM?",
+    "2. La NOM-026-STPS-2008 aplica en:",
+    "3. ¿Qué color de seguridad indica una condición segura?",
+    "4. ¿Qué color indica obligación?",
+    "5. ¿Qué forma geométrica corresponde a una señal de precaución?",
+    "6. ¿Qué forma geométrica corresponde a una señal de prohibición?",
+    "7. ¿Qué color identifica tuberías con fluidos peligrosos?",
+    "8. ¿Qué elemento indica la dirección del fluido en una tubería?",
+    "9. ¿Qué debe hacer el patrón respecto a la señalización?",
+    "10. ¿Qué deben hacer los trabajadores con los elementos de señalización?"
+  ],
+  "options": [
+    {"a": "Regular el mantenimiento de maquinaria.", "b": "Establecer colores, señales e identificación de riesgos en tuberías.", "c": "Establecer los requisitos para el uso de EPP.", "d": "Regular las instalaciones eléctricas."},
+    {"a": "Sólo industrias manufactureras.", "b": "Sólo empresas con sustancias químicas.", "c": "Todos los centros de trabajo, con las excepciones establecidas.", "d": "Sólo centros de trabajo con más de 50 trabajadores."},
+    {"a": "Rojo.", "b": "Amarillo.", "c": "Verde.", "d": "Azul."},
+    {"a": "Rojo.", "b": "Amarillo.", "c": "Verde.", "d": "Azul."},
+    {"a": "Círculo.", "b": "Triángulo.", "c": "Cuadrado.", "d": "Rectángulo."},
+    {"a": "Círculo con banda.", "b": "Triángulo.", "c": "Cuadrado.", "d": "Rectángulo."},
+    {"a": "Rojo.", "b": "Amarillo.", "c": "Verde.", "d": "Azul."},
+    {"a": "Símbolo.", "b": "Leyenda.", "c": "Flecha.", "d": "Banda."},
+    {"a": "Retirarla después de cada inspección.", "b": "Mantener su visibilidad y legibilidad.", "c": "Cambiarla cada mes.", "d": "Colocarla únicamente en emergencias."},
+    {"a": "Respetarlos y aplicarlos.", "b": "Modificarlos según su criterio.", "c": "Retirarlos cuando interfieran con el trabajo.", "d": "Sustituirlos por instrucciones verbales."}
+  ],
+  "answer_key": ["b", "c", "c", "d", "b", "a", "b", "c", "b", "a"]
+}

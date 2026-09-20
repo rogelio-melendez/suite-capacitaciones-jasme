@@ -1,0 +1,31 @@
+{
+  "nom_id": "NOM-004-STPS-1999",
+  "title": "NOM-004-STPS-1999",
+  "approve_operator": ">=",
+  "approve_threshold": 8,
+  "questions": [
+    "1. ¿Cuál es el objetivo principal de la NOM?",
+    "2. La NOM-004-STPS aplica en:",
+    "3. ¿Qué documento debe elaborar el patrón para analizar los riesgos de la maquinaria?",
+    "4. ¿Cuál de los siguientes representa un riesgo asociado a la maquinaria?",
+    "5. ¿Cuál es la finalidad principal de un protector de seguridad?",
+    "6. Antes de realizar mantenimiento a una máquina debe:",
+    "7. ¿Quién debe recibir capacitación sobre operación segura de maquinaria?",
+    "8. ¿Cuál es una obligación del trabajador?",
+    "9. ¿Cuál de los siguientes es un dispositivo de seguridad?",
+    "10. El mantenimiento preventivo tiene como propósito:"
+  ],
+  "options": [
+    {"a": "Incrementar la productividad de la maquinaria.", "b": "Establecer procedimientos de mantenimiento preventivo.", "c": "Prevenir riesgos mediante sistemas de protección y dispositivos de seguridad.", "d": "Regular la compra de maquinaria industrial."},
+    {"a": "Únicamente industrias manufactureras.", "b": "Empresas con más de 250 trabajadores.", "c": "Todos los centros de trabajo que utilicen maquinaria y equipo.", "d": "Sólo empresas certificadas."},
+    {"a": "Manual de mantenimiento.", "b": "Estudio de riesgo potencial.", "c": "Programa anual de capacitación.", "d": "Bitácora de producción."},
+    {"a": "Iluminación natural.", "b": "Color de la pintura.", "c": "Partes en movimiento.", "d": "Manual del fabricante."},
+    {"a": "Reducir el ruido.", "b": "Mejorar la apariencia de la máquina.", "c": "Evitar el acceso del trabajador a la zona de riesgo.", "d": "Incrementar la velocidad de operación."},
+    {"a": "Aumentarse la velocidad de operación.", "b": "Bloquearse la energía y colocar tarjetas de aviso.", "c": "Lubricarse el motor.", "d": "Retirarse el protector."},
+    {"a": "Sólo supervisores.", "b": "Sólo personal de mantenimiento.", "c": "Todos los trabajadores que operen maquinaria y equipo.", "d": "Únicamente los contratistas."},
+    {"a": "Modificar protectores cuando sea necesario.", "b": "Retirar dispositivos de seguridad.", "c": "Reportar anomalías o fallas que representen riesgo.", "d": "Operar maquinaria sin autorización."},
+    {"a": "Escalera portátil.", "b": "Paro de emergencia.", "c": "Banco de trabajo.", "d": "Extensión eléctrica."},
+    {"a": "Reparar únicamente equipos dañados.", "b": "Conservar la maquinaria en condiciones seguras de operación.", "c": "Incrementar la velocidad de producción.", "d": "Reducir el consumo eléctrico."}
+  ],
+  "answer_key": ["c", "c", "b", "c", "c", "b", "c", "c", "b", "b"]
+}
