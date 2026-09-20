@@ -6,7 +6,7 @@ import streamlit as st
 
 from forms_parser import parse_forms_excel
 from report_builder import build_workbook
-import groq_client
+import gemini_client
 import bubble_sheet
 import auth
 import supabase_client as sb
@@ -18,13 +18,13 @@ auth.require_login()  # blocks everything below until logged in -- no public sig
 
 def _ai_ready_banner():
     """Shows a persistent, unmissable banner if the cloud AI key is missing
-    -- most confusion here would be 'I forgot to add the Groq key in
+    -- most confusion here would be 'I forgot to add the Gemini key in
     Secrets', so we check this eagerly instead of failing deep inside a
     wizard step."""
-    if not groq_client.is_available():
+    if not gemini_client.is_available():
         st.error(
-            "🔴 Falta configurar GROQ_API_KEY en Settings → Secrets de esta app en Streamlit "
-            "Cloud. Consigue una clave gratis en console.groq.com/keys. Esto solo afecta a "
+            "🔴 Falta configurar GEMINI_API_KEY en Settings → Secrets de esta app en Streamlit "
+            "Cloud. Consigue una clave gratis en aistudio.google.com/apikey. Esto solo afecta a "
             "'Crear curso de capacitación' -- calificar exámenes no la necesita."
         )
 
