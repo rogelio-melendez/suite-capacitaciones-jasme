@@ -5,6 +5,7 @@ before the next step runs, per the user's explicit request to review
 everything along the way."""
 import os
 import tempfile
+import time
 
 import streamlit as st
 
@@ -25,6 +26,19 @@ def _need_api_key():
         )
         return True
     return False
+
+
+def _call_ai(label, fn, *args, **kwargs):
+    """Runs an AI call and, if it fails, shows the REAL error message right
+    on the page (st.error is never redacted by Streamlit Cloud -- only
+    uncaught exceptions are) instead of letting it crash the whole app with
+    a generic censored message."""
+    try:
+        return fn(*args, **kwargs)
+    except Exception as e:
+        st.error(f"❌ Ocurrió un error generando **{label}**.\n\nDetalle: `{e}`")
+        st.info("Puedes intentar de nuevo dando clic al botón otra vez -- muchas veces es un hipo temporal de Groq.")
+        st.stop()
 
 
 def _init_state():
@@ -147,7 +161,8 @@ def _step0_config():
             "n_exam_final": int(n_exam_final),
         })
         with st.spinner("Analizando el material y proponiendo temario + objetivo..."):
-            proposal = course_ai.propose_temario_and_objetivo(
+            proposal = _call_ai(
+                "temario y objetivo", course_ai.propose_temario_and_objetivo,
                 source_text, course_title.strip(), user_temario=user_temario, num_topics_hint=num_topics_hint,
             )
         data["temario"] = user_temario or proposal["temario"]
@@ -172,14 +187,20 @@ def _step1_temario_objetivo():
         n_topics = len(data["temario"])
 
         with st.spinner("Repartiendo el presupuesto de diapositivas entre los temas..."):
-            allocation = course_ai.allocate_slide_budget(data["source_text"], data["temario"], data["total_slides"])
+            allocation = _call_ai(
+                "el reparto de diapositivas", course_ai.allocate_slide_budget,
+                data["source_text"], data["temario"], data["total_slides"],
+            )
 
         topics = []
         progress = st.progress(0.0, text="Sintetizando contenido por tema...")
         for i, (topic_name, n_slides) in enumerate(zip(data["temario"], allocation)):
+            if i > 0:
+                time.sleep(2)  # respeta el límite de tokens/minuto del nivel gratuito de Groq
             is_verbatim = topic_name.strip().lower() in data["verbatim_topics"]
-            content = course_ai.synthesize_topic_content(
-                data["source_text"], topic_name, max(1, n_slides), verbatim=is_verbatim
+            content = _call_ai(
+                f"el contenido del tema '{topic_name}'", course_ai.synthesize_topic_content,
+                data["source_text"], topic_name, max(1, n_slides), verbatim=is_verbatim,
             )
             topics.append({
                 "name": topic_name,
@@ -223,7 +244,12 @@ def _step2_contenido():
         progress = st.progress(0.0, text="Diseñando una dinámica por tema...")
         n_topics = len(data["topics"])
         for i, topic in enumerate(data["topics"]):
-            proposal = course_ai.propose_dynamic(data["source_text"], topic["name"], topic["content_slides"])
+            if i > 0:
+                time.sleep(2)  # respeta el límite de tokens/minuto del nivel gratuito de Groq
+            proposal = _call_ai(
+                f"la dinámica del tema '{topic['name']}'", course_ai.propose_dynamic,
+                data["source_text"], topic["name"], topic["content_slides"],
+            )
             topic["dynamic_proposal"] = proposal
             progress.progress((i + 1) / n_topics, text=f"Dinámica {i + 1} de {n_topics} lista...")
         progress.empty()
@@ -275,12 +301,15 @@ def _step3_dinamicas():
     if st.button("Continuar a exámenes →", type="primary"):
         with st.spinner("Redactando el examen inicial..."):
             data["exam_inicial_proposal"] = (
-                course_ai.propose_exam(data["source_text"], data["temario"], data["n_exam_inicial"], "inicial")
+                _call_ai("el examen inicial", course_ai.propose_exam,
+                         data["source_text"], data["temario"], data["n_exam_inicial"], "inicial")
                 if data["n_exam_inicial"] > 0 else []
             )
+        time.sleep(2)  # respeta el límite de tokens/minuto del nivel gratuito de Groq
         with st.spinner("Redactando el examen final..."):
             data["exam_final_proposal"] = (
-                course_ai.propose_exam(data["source_text"], data["temario"], data["n_exam_final"], "final")
+                _call_ai("el examen final", course_ai.propose_exam,
+                         data["source_text"], data["temario"], data["n_exam_final"], "final")
                 if data["n_exam_final"] > 0 else []
             )
         st.session_state.cw_step = 4
