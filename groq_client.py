@@ -49,11 +49,17 @@ def _post_chat(prompt, max_tokens, temperature, retries=2):
         "max_tokens": max_tokens,
     }
     last_error = None
+    last_rate_limit_body = None
     for attempt in range(retries + 1):
         try:
-            r = requests.post(GROQ_URL, headers=headers, json=payload, timeout=120)
+            r = requests.post(GROQ_URL, headers=headers, json=payload, timeout=60)
             if r.status_code == 429:
-                time.sleep(3 * (attempt + 1))  # free-tier rate limit -- brief backoff and retry
+                last_rate_limit_body = r.text[:500]
+                last_error = f"429 (límite de solicitudes alcanzado): {last_rate_limit_body}"
+                # Groq's free-tier limits are per-minute -- a short backoff
+                # rarely clears in time, so wait long enough for the window
+                # to actually reset instead of retrying uselessly fast.
+                time.sleep(20 * (attempt + 1))
                 continue
             if r.status_code in (400, 401, 403, 404):
                 # Client-side errors (bad key, bad/retired model name, etc.) will
@@ -64,12 +70,18 @@ def _post_chat(prompt, max_tokens, temperature, retries=2):
             return r.json()["choices"][0]["message"]["content"]
         except RuntimeError:
             raise
-        except requests.exceptions.RequestException as e:
-            last_error = e
+        except requests.exceptions.Timeout as e:
+            last_error = f"tiempo de espera agotado (60s): {e}"
             time.sleep(1)
-    raise RuntimeError(
-        f"No se pudo conectar con Groq después de varios intentos: {last_error}"
-    )
+        except requests.exceptions.RequestException as e:
+            last_error = f"{type(e).__name__}: {e}"
+            time.sleep(1)
+    if last_rate_limit_body:
+        raise RuntimeError(
+            f"Groq rechazó la solicitud por exceso de uso (límite gratuito por minuto/día). "
+            f"Espera un momento y reintenta. Detalle: {last_rate_limit_body}"
+        )
+    raise RuntimeError(f"No se pudo conectar con Groq después de {retries + 1} intentos. Última causa: {last_error}")
 
 
 def _extract_json(text):
