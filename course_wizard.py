@@ -17,12 +17,12 @@ TEMPLATE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets
 
 
 def _need_api_key():
-    """Confirms Groq is reachable before starting a long wizard run."""
-    import groq_client
-    if not groq_client.is_available():
+    """Confirms Gemini is reachable before starting a long wizard run."""
+    import gemini_client
+    if not gemini_client.is_available():
         st.error(
-            "Falta configurar GROQ_API_KEY en Settings → Secrets de esta app en Streamlit Cloud. "
-            "Consigue una clave gratis en console.groq.com/keys."
+            "Falta configurar GEMINI_API_KEY en Settings → Secrets de esta app en Streamlit Cloud. "
+            "Consigue una clave gratis en aistudio.google.com/apikey."
         )
         return True
     return False
